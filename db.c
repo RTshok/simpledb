@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+
 enum main_err {
 	EM_OK=0,
 	/* all following codes start from last lib errcode */
@@ -39,6 +40,7 @@ static char *qhelp_docstring = (
  "\tget [key]                  -- show db entry named by key\n"
  "\tdel [key]                  -- remove entry specified by key from db\n"
  "\thelp                       -- display this message\n"
+ "\tversion                    -- displays the version of db\n"
 );
 
 
@@ -54,7 +56,8 @@ enum query_code{
 	Q_ADD,
 	Q_GET,
 	Q_DEL,
-	Q_HELP
+	Q_HELP,
+	Q_VERSION
 };
 
 static char *query_name[] = {
@@ -62,7 +65,8 @@ static char *query_name[] = {
  [Q_ADD] = "add",
  [Q_GET] = "get",
  [Q_DEL] = "del",
- [Q_HELP] = "help"
+ [Q_HELP] = "help",
+ [Q_VERSION] = "version"
 };
 
 static struct dbitem make_item(const char *str)
@@ -107,7 +111,7 @@ static struct dbitem make_item(const char *str)
  * https://engineering.taboola.com/calculating-git-version/
  */
 #ifdef VERSION
-const char argp_version[] = ##VERSION;	//stringification
+const char argp_version[] = VERSION;	//stringification
 #endif
 
 
@@ -191,6 +195,7 @@ static struct argp parser_config = {
 };
 
 int main(int argc, char *argv[]) {
+
 	/* Fill with default arguments */
 	struct args_container args = {
 		.dir = ".",
@@ -246,8 +251,12 @@ int main(int argc, char *argv[]) {
 
 		int lerr = E_OK;
 		switch(qtype) {
+		case Q_VERSION:
+			printf("The version is: %s \n",argp_version);
+			break;
+			
 		case Q_HELP:
-			printf(qhelp_docstring);
+			printf("%s",qhelp_docstring);
 			exit(EM_OK);
 			/* break;  -- not needed because of exit*/ 
 		case Q_LIST:;	/* ; empty statement */

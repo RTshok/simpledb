@@ -1,14 +1,21 @@
 TARGET=db
 DEPS=simpledb
 LIBS=zlib
+VERSION = v1.0 # change that to change the version of the project
+
+
+# $(shell git tag -a $(VERSION) -m "Release $(VERSION)") # uncomment that to apply the changes.
+GIT_HASH := $(shell git --no-pager describe --tags --always)
 
 CC=gcc
-CFLAGS=-O2 -Wall -Wextra -Wpedantic -Werror
+CFLAGS=-O2 -DVERSION=\"$(GIT_HASH)\" -Wall -Wextra -Wpedantic -Werror
 PACKER=upx -9 -f	# pack the executable
 STRIP=strip --strip-all
 
 DEPS:=$(addsuffix .o, $(DEPS))
 LIBFLAGS:=$(shell pkg-config --cflags --libs $(LIBS))	# be sure to see what it does
+
+
 
 
 .PHONY: all static deploy clean
@@ -23,7 +30,7 @@ all:	clean | $(TARGET)	## clean & build ordinary(dynamic) executable
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(LIBFLAGS) -c $<
-
+    
 $(TARGET): $(DEPS)		## build ordinary(dynamic) executable
 	$(CC) $(CFLAGS) $(DEPS) $(addsuffix .c, $(TARGET)) $(LIBFLAGS) -o $@
 
@@ -44,5 +51,8 @@ ifneq ($(PACKER), "")
 endif
 
 clean:				## tidy build directory
-	@echo Tidying things up...
+	@echo Tidying things up... 
 	-rm -f *.o $(TARGET)
+
+
+
